@@ -1,0 +1,8 @@
+{
+  "Template": {
+    "TemplateName": "TheDailyChuck-prod",
+    "SubjectPart": "👊 Daily Chuck Nr. {{issueNr}}",
+    "TextPart": "{{jokeValue}}\n\nShare me: {{jokeUrl}}",
+    "HtmlPart": "<table><tr><td rowspan='2' valign='top'><a href='{{jokeUrl}}'><img src='https://assets.chucknorris.host/img/avatar/chuck-norris.png '></a></td><td valign='bottom' style='width:300px'><span style='font-size: 16px;'>{{jokeValue}}</span></td></tr><tr><td valign='top'> <a href='{{jokeUrl}}'>Share me!</a> <a href='https://twitter.com/search?q=%23TheDailyChuck'>#TheDailyChuck</a></td></tr></table><br/><span style='font-size: 10px;'>Don't you dare <a href='{{unsubscribeUrl}}'>unsubscribe</a> <strong>The Daily Chuck</strong>!</span>"
+  }
+}

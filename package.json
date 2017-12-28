@@ -1,0 +1,38 @@
+{
+  "name": "chuck-infra-newsletter",
+  "author": {
+    "name": "Mathias Schilling",
+    "email": "m@matchilling.com",
+    "url": "https://www.matchilling.com"
+  },
+  "homepage": "https://api.chucknorris.io/",
+  "version": "0.1.0",
+  "license": "GPL-3.0",
+  "description": "Repository for The Daily Chuck",
+  "keywords": [
+    "Chuck Norris"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/chucknorris-io/chuck-infra-newsletter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chucknorris-io/chuck-infra-newsletter/issues"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.175.0"
+  },
+  "devDependencies": {
+    "babel-preset-node6": "^11.0.0",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
+    "serverless": "1.17.0",
+    "serverless-plugin-optimize": "^3.0.4-rc.1"
+  },
+  "scripts": {
+    "decrypt": "./bin/decrypt",
+    "encrypt": "./bin/encrypt",
+    "postinstall": "./bin/decrypt --debug=true",
+    "test": "export STAGE=dev && ./bin/test"
+  }
+}

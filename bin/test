@@ -1,0 +1,47 @@
+#!/usr/bin/env node
+if (! process.env.STAGE) {
+  process.stdout.write('No "STAGE" environment variable set.\n');
+  process.exit(0);
+}
+
+const blacklist = require(`./../.decrypted/${process.env.STAGE}/blacklist.json`),
+      config = require(`./../.decrypted/${process.env.STAGE}/config.json`),
+      mailchimp = require(`./../.decrypted/${process.env.STAGE}/mailchimp.json`),
+      Mocha = require('mocha'),
+      fs = require('fs'),
+      path = require('path');
+
+const readDir = (directory) => fs.statSync(directory).isDirectory()
+  ? [].concat.apply(
+      [],
+      fs.readdirSync(directory).map(file => readDir(path.join(directory, file)))
+    )
+  : directory;
+
+// Setup environment
+process.env.BLACKLIST_BUCKET     = blacklist.bucket;
+process.env.BLACKLIST_KEY        = blacklist.key;
+process.env.CONFIG_SET_NAME      = config.configurationSetName;
+process.env.DOMAIN_WHITELIST     = config.domainWhitelist;
+process.env.EMAIL_PUBLISHER      = config.emailPublisher;
+process.env.EMAIL_SUBJECT_PREFIX = config.emailSubjectPrefix;
+process.env.EMAIL_TEMPLATE       = config.templateName;
+process.env.MAILCHIMP_API_DC     = mailchimp.datacenter;
+process.env.MAILCHIMP_API_KEY    = mailchimp.key;
+process.env.MAILCHIMP_LIST_ID    = mailchimp.list;
+process.env.MAILCHIMP_USER_ID    = mailchimp.userId;
+process.env.MAILCHIMP_USERNAME   = mailchimp.username;
+
+const testFiles = readDir('src/')
+  .filter(file => '.spec.js' === file.substr(-8))
+  .map(file => path.resolve(file))
+
+const mocha = new Mocha({
+  timeout: 20000
+});
+
+testFiles.forEach(file => mocha.addFile(file));
+
+mocha.run(failures => {
+  process.on('exit', () => { process.exit(failures); });
+});

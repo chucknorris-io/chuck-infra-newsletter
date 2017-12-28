@@ -1,0 +1,56 @@
+service: chuck-infra-newsletter
+
+custom:
+  defaultPackage: ./.serverless
+
+package:
+  individually: true
+
+plugins:
+  - serverless-plugin-optimize
+
+provider:
+  accountId: ${file(./.decrypted/${opt:stage}/aws.json):accountId}
+  name: aws
+  runtime: nodejs6.10
+  region: ${file(./.decrypted/${opt:stage}/aws.json):region}
+  deploymentBucket: io.chucknorris.api
+  stage: ${file(./.decrypted/${opt:stage}/aws.json):stage}
+  iamRoleStatements:
+    -  Effect: "Allow"
+       Action:
+         - "s3:*"
+       Resource:
+          "arn:aws:s3:::io.chucknorris.api/newsletter/*"
+    -  Effect: "Allow"
+       Action:
+         - "ses:*"
+       Resource:
+          "*"
+
+functions:
+  publisher:
+    environment:
+      BLACKLIST_BUCKET: ${file(./.decrypted/${opt:stage}/blacklist.json):bucket}
+      BLACKLIST_KEY: ${file(./.decrypted/${opt:stage}/blacklist.json):key}
+      CONFIG_SET_NAME: ${file(./.decrypted/${opt:stage}/config.json):configurationSetName}
+      DOMAIN_WHITELIST: ${file(./.decrypted/${opt:stage}/config.json):domainWhitelist}
+      EMAIL_PUBLISHER: ${file(./.decrypted/${opt:stage}/config.json):emailPublisher}
+      EMAIL_SUBJECT_PREFIX: ${file(./.decrypted/${opt:stage}/config.json):emailSubjectPrefix}
+      EMAIL_TEMPLATE: ${file(./.decrypted/${opt:stage}/config.json):templateName}
+      ENVIRONMENT: ${opt:stage}
+      MAILCHIMP_API_DC: ${file(./.decrypted/${opt:stage}/mailchimp.json):datacenter}
+      MAILCHIMP_API_KEY: ${file(./.decrypted/${opt:stage}/mailchimp.json):key}
+      MAILCHIMP_LIST_ID: ${file(./.decrypted/${opt:stage}/mailchimp.json):list}
+      MAILCHIMP_USER_ID: ${file(./.decrypted/${opt:stage}/mailchimp.json):userId}
+      MAILCHIMP_USERNAME: ${file(./.decrypted/${opt:stage}/mailchimp.json):username}
+    events:
+      - schedule:
+          enabled: true
+          rate: cron(0 8 * * ? *)
+    handler: src/publisher/index.main
+
+  engagement:
+    events:
+      - sns: arn:aws:sns:${self:provider.region}:${self:provider.accountId}:chuck-email-engagement-${self:provider.stage}
+    handler: src/engagement/index.main
